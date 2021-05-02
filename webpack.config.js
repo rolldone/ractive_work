@@ -11,7 +11,17 @@ var pkg = {
   version: new Date().getTime()
 };
 module.exports = {
+  /**
+   * Providing the mode configuration option tells webpack to use its built-in optimizations accordingly.
+   * String = 'production': 'none' | 'development' | 'production'
+   * https://webpack.js.org/configuration/mode/
+   */
   mode: "production",
+  /**
+   * Since version 4 webpack runs optimizations for you depending on the chosen mode, 
+   * still all optimizations are available for manual configuration and overrides
+   * https://webpack.js.org/configuration/optimization/
+   */
   optimization: {
     splitChunks: {
       chunks: "async",
@@ -24,7 +34,7 @@ module.exports = {
           reuseExistingChunk: true,
           test: (module, chunks) => chunks.length === 2 && /^(editor|player)$/.test(chunks[0].name) && /^(editor|player)$/.test(chunks[1].name)
         },
-        common : {
+        common: {
           chunks: "initial",
           name: "common",
           minChunks: 1,
@@ -32,7 +42,7 @@ module.exports = {
           reuseExistingChunk: true,
           test: /[\/[\\/]node_modules[\\/]((?!moment|jquery).*)[\\/]/
         },
-        common2 : {
+        common2: {
           chunks: "initial",
           name: "common2",
           minChunks: 1,
@@ -40,7 +50,7 @@ module.exports = {
           reuseExistingChunk: true,
           test: /[\\/]node_modules[\\/]((moment|jquery).*)[\\/]/
         },
-        common3 : {
+        common3: {
           chunks: "initial",
           name: "common3",
           minChunks: 1,
@@ -48,7 +58,7 @@ module.exports = {
           reuseExistingChunk: true,
           test: /[\\/]assets[\\/]((?!semantic).*)[\\/]/
         },
-        common4 : {
+        common4: {
           chunks: "initial",
           name: "common4",
           minChunks: 1,
@@ -59,21 +69,36 @@ module.exports = {
       }
     }
   },
+  /**
+   * As mentioned in Getting Started, there are multiple ways to define the entry property in your webpack configuration. 
+   * We will show you the ways you can configure the entry property, in addition to explaining why it may be useful to you.
+   * https://webpack.js.org/concepts/entry-points/
+   */
   entry: {
-    // auth: [path.resolve(__dirname, "./src/v1/auth")],
     main: [path.resolve(__dirname, "./src/basic/Main")],
+    // auth: [path.resolve(__dirname, "./src/v1/auth")],
     // vendor: []
   },
+  /**
+   * The top-level output key contains set of options instructing webpack on how and where 
+   * it should output your bundles, assets and anything else you bundle or load with webpack.
+   * https://webpack.js.org/configuration/output/
+   */
   output: {
     path: path.resolve(__dirname, "dist"),
     /* Kalo pengen express jadi pondasi */
-    publicPath : '/',
+    publicPath: '/',
     /* Kalo pengen mandiri */
     // publicPath: "/dist",
     filename: "[name].js",
-    chunkFilename : '[id].[hash].js'
+    chunkFilename: '[id].[hash].js'
     // chunkFilename : '[name].[hash].js'
   },
+  /**
+   * These options determine how the different types of modules within a project will be treated.
+   * COUTION -> THIS CONFIG STILL EASY DEPRECATED ON WEBPACK
+   * https://webpack.js.org/configuration/module/
+   */
   module: {
     strictExportPresence: true,
     rules: [
@@ -84,12 +109,12 @@ module.exports = {
             loader: 'ts-loader',
             options: {
               // disable type checker - we will use it in fork plugin
-              transpileOnly: true 
+              transpileOnly: true
             }
           }
         ],
         exclude: /node_modules/,
-        
+
       },
       {
         test: /\.ts?$/,
@@ -98,12 +123,12 @@ module.exports = {
             loader: 'ts-loader',
             options: {
               // disable type checker - we will use it in fork plugin
-              transpileOnly: true 
+              transpileOnly: true
             }
           }
         ],
         exclude: /node_modules/,
-        
+
       },
       {
         test: /\.(ico|jpg|png|gif|eot|otf|webp|ttf|woff|woff2|svg)(\?.*)?$/,
@@ -181,13 +206,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       title: 'Ractive Work',
       chunks: [],
-      date : new Date().getTime(),
+      date: new Date().getTime(),
       /**
        * Kalo pake .html pasti error karena kebetulan webpack.
        * Untuk extention html di compile pake ractive-loader. Jadi akalin aja
        * pake .ejs atau terserah karena biar bisa passing value dengan mudah
        * */
-      template : path.join(__dirname, "views", "v1/prod/index.ejs"),
+      template: path.join(__dirname, "views", "v1/prod/index.ejs"),
       filename: path.join(__dirname, "dist", "index.html")
     }),
     /** 2 ->
@@ -196,13 +221,13 @@ module.exports = {
      * https://webpack.js.org/plugins/copy-webpack-plugin/
      */
     new CopyPlugin({
-      patterns : [
+      patterns: [
         // { from: 'src/assets/v1/img', to: 'public/img' },
         // { from: 'src/assets/ionicons', to: 'public/ionicons' },
         // { from: 'src/assets/semantic', to: 'public/semantic' },
         // { from: 'node_modules/leaflet/dist/images', to: 'public/leaflet/images'},
         // { from: 'src/assets/v2/img', to: 'public/v2/img' },
-        { from: '_redirects', to : '' }
+        { from: '_redirects', to: '' }
       ]
     }),
     /** 3 ->
@@ -217,9 +242,9 @@ module.exports = {
       process: {
         env: {
           NODE_ENV: JSON.stringify("production"),
-          ...(function(){
+          ...(function () {
             /* IMPORTANT JSON stringy all */
-            for(var key in config){
+            for (var key in config) {
               config[key] = JSON.stringify(config[key]);
             }
             return config;
@@ -233,7 +258,7 @@ module.exports = {
      * https://webpack.js.org/plugins/provide-plugin/
      */
     new webpack.ProvidePlugin({
-      asyncSeries : "async/series"
+      asyncSeries: "async/series"
     }),
     /** 5 ->
      * This module will help you:
@@ -245,8 +270,14 @@ module.exports = {
      */
     // new BundleAnalyzerPlugin()
   ],
+  /**
+   * These options change how modules are resolved. 
+   * webpack provides reasonable defaults, but it is possible to change the resolving in detail. 
+   * Have a look at Module Resolution for more explanation of how the resolver works.
+   * https://webpack.js.org/configuration/resolve/
+   */
   resolve: {
-    extensions: ['.ts', '.js', '.tsx','.html'],
+    extensions: ['.ts', '.js', '.tsx', '.html'],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     }

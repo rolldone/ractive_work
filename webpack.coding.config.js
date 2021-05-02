@@ -40,6 +40,11 @@ for (var a = 0; a < entryName.length; a++) {
   }
 }
 
+/**
+ * The top-level output key contains set of options instructing webpack on how and where 
+ * it should output your bundles, assets and anything else you bundle or load with webpack.
+ * https://webpack.js.org/configuration/output/
+ */
 webpackConfig.output = {
   path: path.resolve(__dirname, 'views'),
   publicPath: '/',

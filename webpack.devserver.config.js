@@ -3,6 +3,12 @@
 const config = require('./config/client/devserver');
 const webpack = require('webpack');
 const webpackConfig = require('./webpack.config');
+
+/**
+ * Providing the mode configuration option tells webpack to use its built-in optimizations accordingly.
+ * String = 'production': 'none' | 'development' | 'production'
+ * https://webpack.js.org/configuration/mode/
+ */
 webpackConfig.mode = "none";
 
 /**
@@ -33,5 +39,6 @@ webpackConfig.plugins.push(new webpack.DefinePlugin({
     },
     browser: true,
   }
-})),
-  module.exports = webpackConfig;
+}))
+
+module.exports = webpackConfig;
