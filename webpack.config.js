@@ -24,7 +24,6 @@ module.exports = {
           reuseExistingChunk: true,
           test: (module, chunks) => chunks.length === 2 && /^(editor|player)$/.test(chunks[0].name) && /^(editor|player)$/.test(chunks[1].name)
         },
-        
         common : {
           chunks: "initial",
           name: "common",
@@ -56,41 +55,20 @@ module.exports = {
           filename: `[name].js`,
           reuseExistingChunk: true,
           test: /[\\/]assets[\\/]((semantic).*)[\\/]/
-        },
-        
-        /* Old Version
-        common: {
-          chunks: "initial",
-          filename: `[name].bundle.js?v=${pkg.version}`,
-          minChunks: 2,
-          name: "common",
-          reuseExistingChunk: true,
-          test: (module, chunks) => {
-            return !(chunks.length === 2 && /^(editor|player)$/.test(chunks[0].name) && /^(editor|player)$/.test(chunks[1].name));
-          }
-        } 
-        */
+        }
       }
     }
   },
   entry: {
     // auth: [path.resolve(__dirname, "./src/v1/auth")],
     main: [path.resolve(__dirname, "./src/basic/Main")],
-    // delivery_auth : [path.resolve(__dirname,"./src/v1/delivery_auth")],
-    // delivery_main : [path.resolve(__dirname,"./src/v1/delivery_main")],
-    // examplev2: [path.resolve(__dirname, "./src/v2/example")],
-    // partnerv2 : [path.resolve(__dirname, './src/v2/partner')],
     // vendor: []
   },
   output: {
     path: path.resolve(__dirname, "dist"),
-    /* 
-        Kalo pengen express jadi pondasi
-    */
+    /* Kalo pengen express jadi pondasi */
     publicPath : '/',
-    /* 
-        Kalo pengen mandiri
-    */
+    /* Kalo pengen mandiri */
     // publicPath: "/dist",
     filename: "[name].js",
     chunkFilename : '[id].[hash].js'
@@ -129,10 +107,7 @@ module.exports = {
       },
       {
         test: /\.(ico|jpg|png|gif|eot|otf|webp|ttf|woff|woff2|svg)(\?.*)?$/,
-        use: "file-loader",
-        // query: {
-        //   name: "[path][name].[ext]"
-        // }
+        use: "file-loader"
       },
       {
         test: /\.css$/i,
@@ -188,22 +163,38 @@ module.exports = {
     ]
   },
   plugins: [
-    /* 0 */
+    /** 0 -> 
+     * Features
+     * Speeds up TypeScript type checking and ESLint linting (by moving each to a separate process) 🏎
+     * Supports modern TypeScript features like project references and incremental mode ✨
+     * Supports Vue Single File Component ✅ 
+     * Displays nice error messages with the code frame formatter 🌈
+     * https://www.npmjs.com/package/fork-ts-checker-webpack-plugin
+     */
     new ForkTsCheckerWebpackPlugin({}),
-    /* 1 -> Load Html-webpack-plugin */
+    /** 1 ->
+     * The HtmlWebpackPlugin simplifies creation of HTML files to serve your webpack bundles. 
+     * This is especially useful for webpack bundles that include a hash in the filename which changes every compilation. 
+     * You can either let the plugin generate an HTML file for you, supply your own template using lodash templates, or use your own loader.
+     * https://webpack.js.org/plugins/html-webpack-plugin/
+     */
     new HtmlWebpackPlugin({
-      title: 'Lacuisine Admin',
+      title: 'Ractive Work',
       chunks: [],
       date : new Date().getTime(),
-      /* 
-      Kalo pake .html pasti error karena kebetulan webpack.
-      Untuk extention html di compile pake ractive-loader. Jadi akalin aja
-      pake .ejs atau terserah
-      */
+      /**
+       * Kalo pake .html pasti error karena kebetulan webpack.
+       * Untuk extention html di compile pake ractive-loader. Jadi akalin aja
+       * pake .ejs atau terserah karena biar bisa passing value dengan mudah
+       * */
       template : path.join(__dirname, "views", "v1/prod/index.ejs"),
       filename: path.join(__dirname, "dist", "index.html")
     }),
-    /* 2 -> Ini artinya membuatkan folder tujuan pada saat di compile */
+    /** 2 ->
+     * Copies individual files or entire directories, 
+     * which already exist, to the build directory
+     * https://webpack.js.org/plugins/copy-webpack-plugin/
+     */
     new CopyPlugin({
       patterns : [
         // { from: 'src/assets/v1/img', to: 'public/img' },
@@ -214,9 +205,14 @@ module.exports = {
         { from: '_redirects', to : '' }
       ]
     }),
-    // 3 ->
-    // new webpack.optimize.OccurrenceOrderPlugin(),
-    // in webpack 5 default NODE_ENV is production
+    /** 3 ->
+     * Each key passed into DefinePlugin is an identifier or multiple identifiers joined with.
+     * - If the value is a string it will be used as a code fragment.
+     * - If the value isn't a string, it will be stringified (including functions).
+     * - If the value is an object all keys are defined the same way.
+     * - If you prefix typeof to the key, it's only defined for typeof calls.
+     * https://webpack.js.org/plugins/copy-webpack-plugin/
+     */
     new webpack.DefinePlugin({
       process: {
         env: {
@@ -232,30 +228,26 @@ module.exports = {
         browser: true,
       }
     }),
+    /** 4 ->
+     * Automatically load modules instead of having to import or require them everywhere.
+     * https://webpack.js.org/plugins/provide-plugin/
+     */
     new webpack.ProvidePlugin({
       asyncSeries : "async/series"
-      // $: "jquery",
-      // jQuery: "jquery",
-      // moment: "moment",
-      // Swal: path.resolve(path.join(__dirname, "src", "assets/sweetalert2/dist/sweetalert2.js")),
-      // // jQuery: path.resolve(path.join(__dirname, 'lib', 'own_jquery.js')),
-      // // 'window.jQuery': path.resolve(path.join(__dirname, 'lib', 'own_jquery.js')),
-      // gettext: path.join(__dirname, "src/base", "Ttag.js"),
-      // Arg: path.join(__dirname, "src/assets", "arg/dist/arg.min.js"),
-      // asyncjs: "async",
-      // NProgress: "nprogress",
-      // Pusher: path.join(__dirname, "src/assets", "pusher-js-master/dist/web/pusher.min.js"),
-      // _: path.join(__dirname, "src/assets", "lodash/dist/lodash.min.js"),
-      // Validator: path.join(__dirname, "src/assets", "validatorjs/validator.js"),
     }),
-    //new BundleAnalyzerPlugin()
+    /** 5 ->
+     * This module will help you:
+     * - Realize what's really inside your bundle
+     * - Find out what modules make up the most of its size
+     * - Find modules that got there by mistake
+     * - Optimize it!
+     * https://www.npmjs.com/package/webpack-bundle-analyzer
+     */
+    // new BundleAnalyzerPlugin()
   ],
   resolve: {
     extensions: ['.ts', '.js', '.tsx','.html'],
     alias: {
-      // pubsub: "aurelia-event-aggregator",
-      // Ractive: "ractive",
-      // BaseRactive: path.resolve(path.join(__dirname, "src", "lib/ractive/BaseRactive.js")),
       "@": path.resolve(__dirname, "./src"),
     }
   }
